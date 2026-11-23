@@ -1,0 +1,52 @@
+---
+layout: runbook
+title: '#4471 · two date-format causes'
+owner: support desk
+status: known
+reviewed: 2026-11-23
+signature: Kowalskiexe
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+</script>
+
+By the 4 October 2026 export, **412 unique reports** about wrong booking dates had been merged
+into #4471. The export has 427 rows: 15 report IDs appear twice because its pages overlap, so
+each report must be counted once.
+
+Those reports do not share one cause. The largest group is a shared parser that reads dates
+month first for tenants who write dates day first. A second group comes only from booking-v3
+forms: their month-first hint conflicts with those tenants' day-first locale. The table uses
+the tenant directory, channel and form to classify reports; the intake tag is only a guess.
+
+<Callout>
+Known, but split the work: 379 reports point to the shared parser; 33 point to the booking-v3
+date hint. Fixing one does not fix the other.
+</Callout>
+
+## What was merged
+
+<CauseTable ticket={4471} />
+
+The parser group spans all 11 tenants and app, email and booking-v2 form reports. The hint group
+contains 33 booking-v3 form reports from three tenants. Intake mislabeled 38 reports: 23 parser
+reports were tagged `hint`, and 15 hint reports were tagged `parser`. Five one-day-move reports
+in the desk notes remain in the parser group; the symptom alone does not establish a third cause.
+
+## GitHub tickets
+
+- [Shared parser · 379 reports](https://github.com/Kowalskiexe/mega-dev-2137/issues/1)
+- [booking-v3 date hint · 33 reports](https://github.com/Kowalskiexe/mega-dev-2137/issues/2)
+
+## Since April
+
+<QueueTimeline ticket={4471} />
+
+## Lessons
+
+- Deduplicate by report ID before counting; overlapping export pages repeat records.
+- Classify from tenant locale, channel and form, not subject wording or the intake tag.
+- Treat these counts as an export snapshot: the desk keeps receiving reports after 4 October.
